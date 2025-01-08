@@ -67,7 +67,7 @@ class Livre(Document):
 
 
 class Magazine(Document):
-    def __init__(self, titre, auteur, id_document, numero, date_publication, nombre_exemplaires):
+    def __init__(self, titre, auteur, id_document, numero, nombre_exemplaires, date_publication):
         super().__init__(titre, auteur, id_document, nombre_exemplaires)
         self.__numero = numero
         self.__date_publication = date_publication
@@ -83,7 +83,7 @@ class Magazine(Document):
 
 
 class DVD(Document):
-    def __init__(self, titre, auteur, id_document, duree, nombre_exemplaires):
+    def __init__(self, titre, auteur, id_document, nombre_exemplaires, duree):
         super().__init__(titre, auteur, id_document, nombre_exemplaires)
         self.__duree = duree
 
@@ -215,20 +215,19 @@ def ajouterDocument():
         titre = input("Entrez le titre du magazine : ")
         auteur = input("Entrez l'auteur du magazine : ")
         id_document = input("Entrez l'ID du document : ")
-        nombre_pages = int(input("Entrez le nombre de pages : "))
-        nombre_exemplaires = int(input("Entrez le nombre d'exemplaires : "))
+        numero = int(input("Entrez le numéro du magazine : "))
         date_publication = input("Entrez la date de publication (YYYY-MM-DD) : ")
-        magazine = Magazine(titre, auteur, id_document, date_publication, nombre_exemplaires)
+        nombre_exemplaires = int(input("Entrez le nombre d'exemplaires : "))
+        magazine = Magazine(titre, auteur, id_document, numero, date_publication, nombre_exemplaires)
         print(bibliothecaire.ajouter_document(magazine))
 
     elif choix == "3":
         titre = input("Entrez le titre du DVD : ")
         auteur = input("Entrez l'auteur du DVD : ")
         id_document = input("Entrez l'ID du document : ")
-        nombre_pages = int(input("Entrez le nombre de pages : "))
         nombre_exemplaires = int(input("Entrez le nombre d'exemplaires : "))
         duree = input("Entrez la durée du DVD : ")
-        dvd = DVD(titre, auteur, id_document, nombre_pages, nombre_exemplaires, duree)
+        dvd = DVD(titre, auteur, id_document, nombre_exemplaires, duree)
         print(bibliothecaire.ajouter_document(dvd))
 
     else:
