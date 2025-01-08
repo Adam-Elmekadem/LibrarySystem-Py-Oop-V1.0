@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-# Classe Utilisateur
+
+# Classe abstraite Utilisateur
 class Utilisateur(ABC):
     def __init__(self, nom, id_number):
         self.__nom = nom
@@ -15,6 +16,8 @@ class Utilisateur(ABC):
     def role(self):
         pass
 
+
+# Classe abstraite Document
 class Document(ABC):
     def __init__(self, titre, auteur, id_document, nombre_exemplaires):
         self.__titre = titre
@@ -32,7 +35,7 @@ class Document(ABC):
         return self.__id_document
 
     def is_disponible(self):
-        return self.__nombre_exemplaires > 0
+        return ("Disponible" if self.__nombre_exemplaires > 0 else "Indisponible")
 
     def emprunter(self, lecteur):
         if self.is_disponible():
@@ -46,11 +49,11 @@ class Document(ABC):
         return f"Le document '{self.__titre}' a été rendu."
 
     @abstractmethod
-    def get_details(self):
+    def description(self):
         pass
 
 
-# Classe Livre (hérite de Document)
+# Sous-classes concrètes pour Document
 class Livre(Document):
     def __init__(self, titre, auteur, id_document, nombre_pages, nombre_exemplaires):
         super().__init__(titre, auteur, id_document, nombre_exemplaires)
@@ -59,8 +62,10 @@ class Livre(Document):
     def get_nombre_pages(self):
         return self.__nombre_pages
 
+    def description(self):
+        return f"Livre: {self.get_titre()} ({self.get_auteur()}), Pages: {self.__nombre_pages}"
 
-# Classe Magazine (hérite de Document)
+
 class Magazine(Document):
     def __init__(self, titre, auteur, id_document, numero, date_publication, nombre_exemplaires):
         super().__init__(titre, auteur, id_document, nombre_exemplaires)
@@ -73,8 +78,10 @@ class Magazine(Document):
     def get_date_publication(self):
         return self.__date_publication
 
+    def description(self):
+        return f"Magazine: {self.get_titre()} (N°{self.__numero}), Date: {self.__date_publication}"
 
-# Classe DVD (hérite de Document)
+
 class DVD(Document):
     def __init__(self, titre, auteur, id_document, duree, nombre_exemplaires):
         super().__init__(titre, auteur, id_document, nombre_exemplaires)
@@ -83,6 +90,8 @@ class DVD(Document):
     def get_duree(self):
         return self.__duree
 
+    def description(self):
+        return f"DVD: {self.get_titre()} ({self.get_auteur()}), Durée: {self.__duree}"
 
 # Classe Emprunts
 class Emprunts:
@@ -124,11 +133,14 @@ class Emprunts:
         return f"Emprunts actuels de {self.lecteur.get_nom()}: {', '.join(emprunts) if emprunts else 'Aucun emprunt en cours.'}"
 
 
-# Classe Lecteur (hérite de Utilisateur)
+# Sous-classes concrètes pour Utilisateur
 class Lecteur(Utilisateur):
     def __init__(self, nom, id_number, max_emprunts=3):
         super().__init__(nom, id_number)
         self.__emprunts = Emprunts(self, max_emprunts)
+
+    def role(self):
+        return "Lecteur"
 
     def get_emprunts(self):
         return self.__emprunts
@@ -146,11 +158,13 @@ class Lecteur(Utilisateur):
         return self.__emprunts.afficher_emprunts_actuels()
 
 
-# Classe Bibliothécaire
 class Bibliothecaire(Utilisateur):
     def __init__(self, nom, id_number):
         super().__init__(nom, id_number)
         self.__documents = []  # Liste de tous les documents dans la bibliothèque
+
+    def role(self):
+        return "Bibliothécaire"
 
     def ajouter_document(self, document):
         self.__documents.append(document)
@@ -170,40 +184,177 @@ class Bibliothecaire(Utilisateur):
             [f"{doc.get_titre()} ({doc.get_auteur()}) - Exemplaires : {doc.is_disponible()}" for doc in self.__documents]
         )
 
-
+    def get_document_par_id(self, id_document):
+        for document in self.__documents:
+            if document.get_id() == id_document:
+                return document
+        return None
 
 # Création d'un bibliothécaire
 
 bibliothecaire = Bibliothecaire("Mme Majdouline", 101)
 
+def ajouterDocument():
+    print("\nQue voullez-vous ajouter ?")
+    print("1. Livre")
+    print("2. Magazine")
+    print("3. DVD")
 
-# Création des documents
+    choix = input("Entrez le numéro de votre choix : ")
 
-livre1 = Livre("Le Pain Nu", "Mohamed Choukri", "123456789", 328, 2)
+    if choix == "1":
+        titre = input("Entrez le titre du livre : ")
+        auteur = input("Entrez l'auteur du livre : ")
+        id_document = input("Entrez l'ID du document : ")
+        nombre_pages = int(input("Entrez le nombre de pages : "))
+        nombre_exemplaires = int(input("Entrez le nombre d'exemplaires : "))
+        livre = Livre(titre, auteur, id_document, nombre_pages, nombre_exemplaires)
+        print(bibliothecaire.ajouter_document(livre))
 
-magazine1 = Magazine("MaTourist", "Agence", 2024, 2, "2022-01-01", 5)
+    elif choix == "2":
+        titre = input("Entrez le titre du magazine : ")
+        auteur = input("Entrez l'auteur du magazine : ")
+        id_document = input("Entrez l'ID du document : ")
+        nombre_pages = int(input("Entrez le nombre de pages : "))
+        nombre_exemplaires = int(input("Entrez le nombre d'exemplaires : "))
+        date_publication = input("Entrez la date de publication (YYYY-MM-DD) : ")
+        magazine = Magazine(titre, auteur, id_document, date_publication, nombre_exemplaires)
+        print(bibliothecaire.ajouter_document(magazine))
 
-dvd1 = DVD("Interstellar", "Christopher Nolan", 3, "2h30min", 1)
+    elif choix == "3":
+        titre = input("Entrez le titre du DVD : ")
+        auteur = input("Entrez l'auteur du DVD : ")
+        id_document = input("Entrez l'ID du document : ")
+        nombre_pages = int(input("Entrez le nombre de pages : "))
+        nombre_exemplaires = int(input("Entrez le nombre d'exemplaires : "))
+        duree = input("Entrez la durée du DVD : ")
+        dvd = DVD(titre, auteur, id_document, nombre_pages, nombre_exemplaires, duree)
+        print(bibliothecaire.ajouter_document(dvd))
 
-livre2 = Livre("Le Prince", "Mekiaveli", "987654321", 128, 1)
+    else:
+        print("choix invalide. Veuillez réessayer.")
+        ajouterDocument()
 
-print(bibliothecaire.ajouter_document(livre1))
-print(bibliothecaire.ajouter_document(magazine1))
-print(bibliothecaire.ajouter_document(dvd1))
-print(bibliothecaire.ajouter_document(livre2))
+def suprimerDocument():
+    print("\nQue voullez-vous supprimer ?")
+    print("1. Livre")
+    print("2. Magazine")
+    print("3. DVD")
+    choix = input("Entrez le numéro de votre choix : ")
+    if choix == "1":
+        id_document = input("Entrez l'ID du document à supprimer : ")
+        print(bibliothecaire.supprimer_document(id_document))
+    elif choix == "2":
+        id_document = input("Entrez l'ID du document à supprimer : ")
+        print(bibliothecaire.supprimer_document(id_document))
+    elif choix == "3":
+        id_document = input("Entrez l'ID du document à supprimer : ")
+        print(bibliothecaire.supprimer_document(id_document))
+    else:
+        print("choix invalide. Veuillez réessayer.")
+        suprimerDocument()
 
-print(bibliothecaire.afficher_documents())
+def afficherDocuments():
+    print(bibliothecaire.afficher_documents())
 
-lecteur1 = Lecteur("Adam Elmekadem", 1)
+def Login_admin():
+    print("\nBienvenue dans le système de gestion de la bibliothèque")
+    print("Veuillez entrer votre nom d'utilisateur et votre mot de passe pour accéder à l'interface d'administration.\n")
 
-print(lecteur1.emprunter_document(livre1))
-print(lecteur1.emprunter_document(magazine1))
-print(lecteur1.emprunter_document(dvd1))
-print(lecteur1.afficher_emprunts_actuels())
-print(lecteur1.emprunter_document(livre2))
+    while True:
+        username = input("Nom d'utilisateur : ")
+        password = input("Mot de passe : ")
 
-print(lecteur1.rendre_document(magazine1))
-print(lecteur1.rendre_document(livre1))
+        if password == "admin":
 
-print(lecteur1.afficher_historique())
+            while True:
+                print("\nMenu Administrateur :")
+                print("1. Ajouter un document")
+                print("2. Supprimer un document")
+                print("3. Afficher les documents")
+                print("4. Retour au menu principal")
+
+                choix_menu = input("Entrez le numéro de votre choix : ")
+                if choix_menu == "1":
+                    ajouterDocument()
+                elif choix_menu == "2":
+                    suprimerDocument()
+                elif choix_menu == "3":
+                    afficherDocuments()
+                elif choix_menu == "4":
+                    break
+                else:
+                    print("Choix invalide. Veuillez réessayer.")
+            break  # Sortir du login après le menu
+        else:
+            print("Nom d'utilisateur ou mot de passe incorrect. Veuillez réessayer.")
+
+def Login_lecteur():
+    print("\nBienvenue dans le système de gestion de la bibliothèque")
+    username = input("Nom d'utilisateur : ")
+    password = input("Mot de passe (au moins 8 caractères) : ")
+
+    if len(password) >= 8:
+        lecteur = Lecteur(username, 123)  # Remplacez 123 par un identifiant unique
+    else:
+        print("Le mot de passe doit contenir au moins 8 caractères.")
+        return
+
+    while True:
+        print("\nMenu Lecteur :")
+        print("1. Emprunter un document")
+        print("2. Rendre un document")
+        print("3. Afficher historique des emprunts")
+        print("4. Afficher emprunts actuels")
+        print("5. Retour au menu principal")
+
+        choix = input("Entrez le numéro de votre choix : ")
+        if choix == "1":
+            id_document = input("Entrez l'ID du document à emprunter : ")
+            document = bibliothecaire.get_document_par_id(id_document)
+            if document:
+                print(lecteur.emprunter_document(document))
+            else:
+                print(f"Aucun document trouvé avec l'ID '{id_document}'.")
+        elif choix == "2":
+            id_document = input("Entrez l'ID du document à rendre : ")
+            document = bibliothecaire.get_document_par_id(id_document)
+            if document:
+                print(lecteur.rendre_document(document))
+            else:
+                print(f"Aucun document trouvé avec l'ID '{id_document}'.")
+        elif choix == "3":
+            print(lecteur.afficher_historique())
+        elif choix == "4":
+            print(lecteur.afficher_emprunts_actuels())
+        elif choix == "5":
+            break
+        else:
+            print("Choix invalide. Veuillez réessayer.")
+
+
+
+def main_menu():
+    print("Bienvenue dans le système de gestion de la bibliothèque")
+    while True:
+        print("\nMenu principal :")
+        print("1. Connexion en tant qu'administrateur")
+        print("2. Connexion en tant que lecteur")
+        print("3. Quitter")
+
+        choix = input("Entrez le numéro de votre choix : ")
+
+        if choix == "1":
+            Login_admin()
+        elif choix == "2":
+            Login_lecteur()
+        elif choix == "3":
+            print("Merci d'avoir utilisé le système. À bientôt !")
+            break
+        else:
+            print("Choix invalide. Veuillez réessayer.")
+
+if __name__ == "__main__":
+    main_menu()
+
 
